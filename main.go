@@ -11,8 +11,9 @@ func main() {
 
 	router.GET("/", rootHandler)
 	router.GET("/pageke2", page2Handler)
-	// url parameter
-	router.GET("/item/:id", urlparamHandler)
+	router.GET("/item/:id/:tahun", urlparamHandler)
+	// query param handler, misal /drama?judul=data_input. ini akan return data_input
+	router.GET("/query", queryparamHandler)
 	router.Run(":8888")
 }
 
@@ -30,9 +31,14 @@ func page2Handler(c *gin.Context) {
 }
 
 func urlparamHandler(c *gin.Context) {
-	// tangkap url parameter, dlm hal ini id, dan simpan kedlm variabel id
 	id := c.Param("id")
+	tahun := c.Param("tahun")
+	c.JSON(http.StatusOK, gin.H{"url param data": id, "tahun": tahun})
+}
 
-	// kirim id tsb sbg respon (data)ke user
-	c.JSON(http.StatusOK, gin.H{"url param data": id})
+// cara kerjanya mirip sprti urlparamHandler
+func queryparamHandler(c *gin.Context) {
+	judul := c.Query("judul")
+	rating := c.Query("rating")
+	c.JSON(http.StatusOK, gin.H{"query param ? ": judul, "rating": rating})
 }
