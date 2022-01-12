@@ -9,7 +9,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// ubah functionnya jd public, caranya huruf awal hrs besar
 func RootHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"nama":   "author",
