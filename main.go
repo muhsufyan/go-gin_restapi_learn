@@ -21,21 +21,19 @@ func main() {
 
 	db.AutoMigrate(&transition.Penyimpanan{})
 
-	// UPDATE. untuk melakukan update kita perlu data apa yg ingin di update (dlm hal ini adlh id)
+	// DELETE. untuk melakukan delete (sama sprti update maka) kita perlu data apa yg ingin di update (dlm hal ini adlh id)
 	var data transition.Penyimpanan
 
 	// get id
-	err = db.Debug().Where("id = ?", 1).First(&data).Error //SELECT * FROM `penyimpanans` WHERE id = 1 ORDER BY `penyimpanans`.`id` LIMIT 1
+	err = db.Debug().Where("id = ?", 2).First(&data).Error //SELECT * FROM `penyimpanans` WHERE id = 1 ORDER BY `penyimpanans`.`id` LIMIT 1
 	if err != nil {
 		fmt.Println("id tidak ditemukan")
 	}
 
-	// update judul dari id yg ditentukan
-	data.Judul = "judul berhasil di update"
-	// simpan ke db, jika tdk Save() maka data hanya disimpan dlm memory tdk tersimpan ke db
-	err = db.Save(&data).Error
+	// delete record dari id yg ditentukan
+	err = db.Delete(&data).Error
 	if err != nil {
-		fmt.Println("data tidak terupdate")
+		fmt.Println("data tidak berhasil dihapus, ada ERROR")
 	}
 
 	router := gin.Default()
