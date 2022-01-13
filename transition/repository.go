@@ -1,5 +1,6 @@
 package transition
 
+// penyimpanan ke db disini
 import (
 	"fmt"
 
@@ -9,7 +10,7 @@ import (
 type Repository interface {
 	FindAll() ([]Penyimpanan, error)
 	FindByID(ID int) (Penyimpanan, error)
-	Create(data Penyimpanan) (Penyimpanan, error) //data = book
+	Create(data Penyimpanan) (Penyimpanan, error)
 }
 
 type repository struct {

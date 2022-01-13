@@ -1,5 +1,8 @@
 package main
 
+// now kita input json lwt postman http post v1/item yg akan disimpan kedlm db
+// mengakses service dr dlm handler(how handler access service), caranya sama saja dg mengakses repository dr dlm service/how service can access repository
+// dlm handler buat func baru New....
 import (
 	"log"
 	"rest-api_gin/handler"
@@ -20,27 +23,20 @@ func main() {
 
 	db.AutoMigrate(&transition.Penyimpanan{})
 
-	// instansiasi repository
 	dataRepository := transition.NewRepository(db)
-	// buat instansiasi service, paramnya adlh interface Repository jd kita perlu struct yg mengimplement interface Repository
 	dataService := transition.NewService(dataRepository)
 
-	// ini seharusnya ada dihandler /controller lbh tptnya di func PostHandler, tp hanya percobaan jd disini dulu saja
-	dataRequest := transition.ItemRequest{
-		Judul:    "service & repository",
-		Rating:   "200",
-		SubTitle: "melayu",
-	}
-	dataService.Create(dataRequest)
+	// buat dataHandler, passing (lwt param) fungsi dataServicenya
+	dataHandler := handler.NewDataHandler(dataService)
 	router := gin.Default()
 
 	v1 := router.Group("/v1")
-
-	v1.GET("/", handler.RootHandler)
-	v1.GET("/pageke2", handler.Page2Handler)
-	v1.GET("/item/:id/:tahun", handler.UrlparamHandler)
-	v1.GET("/query", handler.QueryparamHandler)
-	v1.POST("/item", handler.PostHandler)
+	// cara akses nya diubah jd lwt Service dulu tdk langsung ke handler
+	v1.GET("/", dataHandler.RootHandler)
+	v1.GET("/pageke2", dataHandler.Page2Handler)
+	v1.GET("/item/:id/:tahun", dataHandler.UrlparamHandler)
+	v1.GET("/query", dataHandler.QueryparamHandler)
+	v1.POST("/item", dataHandler.PostHandler)
 
 	router.Run(":8888")
 }

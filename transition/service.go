@@ -18,40 +18,29 @@ type service struct {
 	repository Repository
 }
 
-// paramnya interface dr Repository di repository.go, return service
 func NewService(repository Repository) *service {
-	// servie bth repository, jd repository menjd param
 	return &service{repository}
 }
 
-// IMPLEMENT FUNC DARI Service
-func (s *service) findAll() ([]Penyimpanan, error) { //[]Book, error
-	// return sama sprti FindAll() punya repository jd langsung panggil saja
-	// return s.repository.FindAll()
-	// kode ribetnya
-	dataset, err := s.repository.FindAll() //books, err
+func (s *service) FindAll() ([]Penyimpanan, error) {
+	dataset, err := s.repository.FindAll()
 	return dataset, err
 }
 
-// func (s *service) FindByID(ID int) (Penyimpanan, error) {
 func (s *service) FindByID(ID int) (Penyimpanan, error) {
 	data, err := s.repository.FindByID(ID)
 	return data, err
 }
 
 func (s *service) Create(dataRequest ItemRequest) (Penyimpanan, error) {
-	// disini paramnya dataRequest(dari ItemRequest) sdngkan di Create dlm Repository adlh Penyimpanan (akan mengarah ke entity.go struct Penyimpanan)
-	// sedngkan disini adanya ItemRequest yg mengarah ke struct ItemRequest di request.go
-	// jd kita hrs ubah, sbb
-	// ubah Rating dulu
 	rating, _ := dataRequest.Rating.Int64()
+	// mapping
 	data := Penyimpanan{
-		Judul: dataRequest.Judul,
-		// ubah rating jd int
+		Judul:    dataRequest.Judul,
 		Rating:   int(rating),
 		SubTitle: dataRequest.SubTitle,
 	}
-	// masukkan param data diatas
+
 	newData, err := s.repository.Create(data)
 	return newData, err
 }
