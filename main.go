@@ -14,6 +14,11 @@ import (
 
 func main() {
 	dsn := "root:@tcp(127.0.0.1:3306)/simpan?charset=utf8mb4&parseTime=True&loc=Local"
+	// sblmnya kita melakukan query dg objek db scra langsung. now kita akan bungkus objek db kedlm repository
+	// pertama kita buat repository simpan yg bertanggung jwb terhdp entity penyimpanan (tabel penyimpanans)
+	// dlm transition buat file baru repository.go
+	// dg repository kita membatasi agar mengakses db tdk dilakukan scra langsung
+	// now ketika melakukan query kita bikin struct lalu buat function dulu sesuai dg tugas querynya lalu panggil dbnya dlm repository
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("koneksi ke db error")
@@ -21,21 +26,32 @@ func main() {
 
 	db.AutoMigrate(&transition.Penyimpanan{})
 
-	// DELETE. untuk melakukan delete (sama sprti update maka) kita perlu data apa yg ingin di update (dlm hal ini adlh id)
-	var data transition.Penyimpanan
-
-	// get id
-	err = db.Debug().Where("id = ?", 2).First(&data).Error //SELECT * FROM `penyimpanans` WHERE id = 1 ORDER BY `penyimpanans`.`id` LIMIT 1
+	// COBA TAMPILKAN SEMUA JUDUL
+	// passing objek db ke NewRepository
+	dataRespository := transition.NewRepository(db)
+	// ambil semua data di Penyimpanan
+	dataset, err := dataRespository.FindAll()
 	if err != nil {
-		fmt.Println("id tidak ditemukan")
+		fmt.Println("data tidak ditemukan ERROR")
 	}
 
-	// delete record dari id yg ditentukan
-	err = db.Delete(&data).Error
-	if err != nil {
-		fmt.Println("data tidak berhasil dihapus, ada ERROR")
+	// fetch datanya
+	for _, data := range dataset {
+		fmt.Println("Judul :", data.Judul)
 	}
 
+	// GET DATA BY ID TERTENTU
+	data, err := dataRespository.FindById(3)
+	fmt.Println("Judul dari id ke 3 adlh", data.Judul)
+
+	// CREATE DATA BARU
+	dataIn := transition.Penyimpanan{
+		Judul:    "judul baru dari repository",
+		Rating:   4,
+		SubTitle: "en,in",
+	}
+	// simpan
+	dataRespository.Create(dataIn)
 	router := gin.Default()
 
 	v1 := router.Group("/v1")
