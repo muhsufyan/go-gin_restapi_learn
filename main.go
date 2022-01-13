@@ -21,22 +21,56 @@ func main() {
 
 	db.AutoMigrate(&transition.Penyimpanan{})
 
-	// create data baru ke tabel penyimpanans(lwt struct Penyimpanan yg ada di transition/entity)
-	// buat objek dr struct Penyimpanan
-	data := transition.Penyimpanan{}
-	// data.ID sudah digenerate o/ db (autoincrement)
-	data.Judul = "sword"
-	data.Rating = 3
-	data.SubTitle = "en"
-	// data.CreatedAt & data.UpdatedAt dibuat otomatis
-	// simpan ke db sebagai data baru
-	// db.Create(&data) kenapa pakai tanda & karena as pointer
-	// cek dulu jika ada error
-	err = db.Create(&data).Error
+	// // create new data
+	// data := transition.Penyimpanan{}
+
+	// data.Judul = "sword season 2"
+	// data.Rating = 5
+	// data.SubTitle = "in"
+
+	// err = db.Create(&data).Error
+	// if err != nil {
+	// 	fmt.Println("Error saat menyimpan data baru")
+	// }
+
+	// dpt data
+	var data transition.Penyimpanan
+
+	// get 1 data pertama(di urutan pertama, order by id ascending), passing datanyadg menjdkan param
+	// err = db.First(&data).Error
+	// kode diatas dpt dimunculkan query sqlnya dg menambahkan Debug(). Jika ingin mengambil 1 data terakhir ganti First jd Last
+	// err = db.Debug().First(&data).Error // query sqlnya : SELECT * FROM `penyimpanans` ORDER BY `penyimpanans`.`id` LIMIT 1
+	// cari 1 data dg id tertentu
+	err = db.Debug().First(&data, 2).Error // query sqlnya : SELECT * FROM `penyimpanans` WHERE `penyimpanans`.`id` = 2 ORDER BY `penyimpanans`.`id` LIMIT 1
 	if err != nil {
-		fmt.Println("Error saat menyimpan data baru")
+		fmt.Println("get first record not find : Error")
 	}
-	// ini hanya sementara jd blm selesai sampai sini
+	fmt.Println("judul", data.Judul)
+	fmt.Printf("objek data %v", data)
+	// ambil semua data, dlm bntk array (di go disbt slash)
+	var dataset []transition.Penyimpanan
+	err = db.Debug().Find(&dataset).Error //SELECT * FROM `penyimpanans`
+	if err != nil {
+		fmt.Println("data tidak ditemukan, Error")
+	}
+	// print satu persatu
+	for _, d := range dataset {
+		fmt.Println("judul", d.Judul)
+		fmt.Printf("objek data %v", d)
+	}
+
+	// find() tdk ada limit sedangkan first() ada LIMIT 1, first() dan Take() bedanya Take() tdk ORDER & find() tdk ada ORDER
+	// kita akan cari berdasarkan judul
+	err = db.Debug().Where("judul = ?", "sword season 2").Find(&dataset).Error //SELECT * FROM `penyimpanans` WHERE judul = 'sword season 2'
+	if err != nil {
+		fmt.Println("data tidak ditemukan, Error")
+	}
+	// print satu persatu
+	for _, d := range dataset {
+		fmt.Println("judul", d.Judul)
+		fmt.Printf("objek data %v", d)
+	}
+
 	router := gin.Default()
 
 	v1 := router.Group("/v1")
