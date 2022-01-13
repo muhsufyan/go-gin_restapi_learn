@@ -35,7 +35,7 @@ func QueryparamHandler(c *gin.Context) {
 }
 
 func PostHandler(c *gin.Context) {
-	var dataInput transition.ItemInput
+	var dataInput transition.ItemRequest
 	err := c.ShouldBindJSON(&dataInput)
 	if err != nil {
 		errMsgs := []string{}
