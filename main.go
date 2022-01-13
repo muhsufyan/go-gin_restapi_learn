@@ -21,54 +21,21 @@ func main() {
 
 	db.AutoMigrate(&transition.Penyimpanan{})
 
-	// // create new data
-	// data := transition.Penyimpanan{}
-
-	// data.Judul = "sword season 2"
-	// data.Rating = 5
-	// data.SubTitle = "in"
-
-	// err = db.Create(&data).Error
-	// if err != nil {
-	// 	fmt.Println("Error saat menyimpan data baru")
-	// }
-
-	// dpt data
+	// UPDATE. untuk melakukan update kita perlu data apa yg ingin di update (dlm hal ini adlh id)
 	var data transition.Penyimpanan
 
-	// get 1 data pertama(di urutan pertama, order by id ascending), passing datanyadg menjdkan param
-	// err = db.First(&data).Error
-	// kode diatas dpt dimunculkan query sqlnya dg menambahkan Debug(). Jika ingin mengambil 1 data terakhir ganti First jd Last
-	// err = db.Debug().First(&data).Error // query sqlnya : SELECT * FROM `penyimpanans` ORDER BY `penyimpanans`.`id` LIMIT 1
-	// cari 1 data dg id tertentu
-	err = db.Debug().First(&data, 2).Error // query sqlnya : SELECT * FROM `penyimpanans` WHERE `penyimpanans`.`id` = 2 ORDER BY `penyimpanans`.`id` LIMIT 1
+	// get id
+	err = db.Debug().Where("id = ?", 1).First(&data).Error //SELECT * FROM `penyimpanans` WHERE id = 1 ORDER BY `penyimpanans`.`id` LIMIT 1
 	if err != nil {
-		fmt.Println("get first record not find : Error")
-	}
-	fmt.Println("judul", data.Judul)
-	fmt.Printf("objek data %v", data)
-	// ambil semua data, dlm bntk array (di go disbt slash)
-	var dataset []transition.Penyimpanan
-	err = db.Debug().Find(&dataset).Error //SELECT * FROM `penyimpanans`
-	if err != nil {
-		fmt.Println("data tidak ditemukan, Error")
-	}
-	// print satu persatu
-	for _, d := range dataset {
-		fmt.Println("judul", d.Judul)
-		fmt.Printf("objek data %v", d)
+		fmt.Println("id tidak ditemukan")
 	}
 
-	// find() tdk ada limit sedangkan first() ada LIMIT 1, first() dan Take() bedanya Take() tdk ORDER & find() tdk ada ORDER
-	// kita akan cari berdasarkan judul
-	err = db.Debug().Where("judul = ?", "sword season 2").Find(&dataset).Error //SELECT * FROM `penyimpanans` WHERE judul = 'sword season 2'
+	// update judul dari id yg ditentukan
+	data.Judul = "judul berhasil di update"
+	// simpan ke db, jika tdk Save() maka data hanya disimpan dlm memory tdk tersimpan ke db
+	err = db.Save(&data).Error
 	if err != nil {
-		fmt.Println("data tidak ditemukan, Error")
-	}
-	// print satu persatu
-	for _, d := range dataset {
-		fmt.Println("judul", d.Judul)
-		fmt.Printf("objek data %v", d)
+		fmt.Println("data tidak terupdate")
 	}
 
 	router := gin.Default()
