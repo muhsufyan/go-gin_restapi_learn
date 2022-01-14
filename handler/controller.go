@@ -1,8 +1,8 @@
 package handler
 
-/* endpoint untuk get all data
-service dan repository sdh selesai (lwt func FindAll), tinggal dibagian handler/controller ini dan kita hanya gunakan PostHandler jd handler yg lainnya dihapus saja
-kita buat endpoint baru di main.go
+/*
+get data tp key jsonnya huruf kecil semua, dan hanya menampilkan data yg diinginkan saja (pd bagian get all data akan kembalikan semua data lewat struct Penyimpanan di entity.go)
+untuk melakukan itu kita hrs buat struct yg akan mewakili data json response, dlm transition buat yaitu response.go
 */
 import (
 	"fmt"
@@ -22,8 +22,8 @@ func NewDataHandler(dataService transition.Service) *dataHandler {
 	return &dataHandler{dataService}
 }
 
-// get semua data, kita sebut semua data as dataset
 func (h *dataHandler) GetDataset(c *gin.Context) {
+	// kode dibawah ini akan mengarah ke struct Penyimpanan jd kita ubah sehingga mengarah ke struct dataResponse
 	dataset, err := h.dataService.FindAll()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -31,13 +31,23 @@ func (h *dataHandler) GetDataset(c *gin.Context) {
 		})
 		return
 	}
-	// jika ada semua data, kita return
+	// disini ubah arah jd ke struct dataResponse
+	var datasetResponse []transition.DataResponse
+	// mapping datanya
+	for _, datum := range dataset {
+		dataResponse := transition.DataResponse{
+			ID:       datum.ID,
+			Judul:    datum.Judul,
+			Rating:   datum.Rating,
+			SubTitle: datum.SubTitle,
+		}
+		datasetResponse = append(datasetResponse, dataResponse)
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"data": dataset,
+		"data": datasetResponse,
 	})
 }
 
-// create data
 func (h *dataHandler) PostHandler(c *gin.Context) {
 
 	var dataRequest transition.ItemRequest

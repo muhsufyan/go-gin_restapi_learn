@@ -20,9 +20,8 @@ func main() {
 
 	db.AutoMigrate(&transition.Penyimpanan{})
 
-	// simpan ke db
 	dataRepository := transition.NewRepository(db)
-	dataService := transition.NewService(dataRepository) //simpan ke db(dilakukan melalui param dataRepository yg mrpkn interface dr Repository)
+	dataService := transition.NewService(dataRepository)
 	dataHandler := handler.NewDataHandler(dataService)
 
 	router := gin.Default()
