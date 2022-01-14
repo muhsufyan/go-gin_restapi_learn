@@ -10,6 +10,8 @@ type Repository interface {
 	FindAll() ([]Penyimpanan, error)
 	FindByID(ID int) (Penyimpanan, error)
 	Create(data Penyimpanan) (Penyimpanan, error)
+	// define func update
+	Update(data Penyimpanan) (Penyimpanan, error)
 }
 
 type repository struct {
@@ -48,5 +50,12 @@ func (r *repository) Create(data Penyimpanan) (Penyimpanan, error) {
 	if err != nil {
 		fmt.Println("error, data tidak ditemukan")
 	}
+	return data, err
+}
+
+// implement func Update pd interface diatas
+func (r *repository) Update(data Penyimpanan) (Penyimpanan, error) {
+	// update(simpan update) ke db mysql
+	err := r.db.Save(&data).Error
 	return data, err
 }

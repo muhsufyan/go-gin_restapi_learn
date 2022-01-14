@@ -4,6 +4,8 @@ type Service interface {
 	FindAll() ([]Penyimpanan, error)
 	FindByID(ID int) (Penyimpanan, error)
 	Create(dataRequest ItemRequest) (Penyimpanan, error)
+	// define func Update dlm interface Service
+	Update(ID int, dataRequest ItemRequest) (Penyimpanan, error)
 }
 
 type service struct {
@@ -33,5 +35,21 @@ func (s *service) Create(dataRequest ItemRequest) (Penyimpanan, error) {
 	}
 
 	newData, err := s.repository.Create(data)
+	return newData, err
+}
+
+// Implement func update dari interface service
+// update hrs tahu id berapa yg akan diupdate, jd perlu param id
+func (s *service) Update(ID int, dataRequest ItemRequest) (Penyimpanan, error) {
+	// dptkan id yg ingin diupdate
+	dataId, err := s.repository.FindByID(ID)
+
+	rating, _ := dataRequest.Rating.Int64()
+	// update nilai/datanya
+	dataId.Judul = dataRequest.Judul
+	dataId.Rating = int(rating)
+	dataId.SubTitle = dataRequest.SubTitle
+
+	newData, err := s.repository.Update(dataId)
 	return newData, err
 }
