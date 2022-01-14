@@ -1,5 +1,9 @@
 package handler
 
+/* endpoint untuk get all data
+service dan repository sdh selesai (lwt func FindAll), tinggal dibagian handler/controller ini dan kita hanya gunakan PostHandler jd handler yg lainnya dihapus saja
+kita buat endpoint baru di main.go
+*/
 import (
 	"fmt"
 	"net/http"
@@ -18,31 +22,22 @@ func NewDataHandler(dataService transition.Service) *dataHandler {
 	return &dataHandler{dataService}
 }
 
-func (h *dataHandler) RootHandler(c *gin.Context) {
+// get semua data, kita sebut semua data as dataset
+func (h *dataHandler) GetDataset(c *gin.Context) {
+	dataset, err := h.dataService.FindAll()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"errors": err,
+		})
+		return
+	}
+	// jika ada semua data, kita return
 	c.JSON(http.StatusOK, gin.H{
-		"nama":   "author",
-		"alamat": "nama alamat author",
+		"data": dataset,
 	})
 }
 
-func (h *dataHandler) Page2Handler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"data": "kosong",
-	})
-}
-
-func (h *dataHandler) UrlparamHandler(c *gin.Context) {
-	id := c.Param("id")
-	tahun := c.Param("tahun")
-	c.JSON(http.StatusOK, gin.H{"url param data": id, "tahun": tahun})
-}
-
-func (h *dataHandler) QueryparamHandler(c *gin.Context) {
-	judul := c.Query("judul")
-	rating := c.Query("rating")
-	c.JSON(http.StatusOK, gin.H{"query param ? ": judul, "rating": rating})
-}
-
+// create data
 func (h *dataHandler) PostHandler(c *gin.Context) {
 
 	var dataRequest transition.ItemRequest
