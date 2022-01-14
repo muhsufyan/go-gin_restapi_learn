@@ -29,7 +29,7 @@ func main() {
 	v1 := router.Group("/v1")
 	v1.GET("/", dataHandler.GetDataset)
 	v1.GET("/getById/:id", dataHandler.GetDataByIdHandler)
-	v1.POST("/item", dataHandler.PostHandler)
+	v1.POST("/item", dataHandler.CreateNewDataHandler)
 
 	router.Run(":8888")
 }

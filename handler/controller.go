@@ -1,9 +1,35 @@
 package handler
 
 /*
-get data dg id tertentu
-localhost/v1/2 , disana 2 adlh id jd yg dikembalikan hanya data dg id ke 2 saja.
-Repository dan Service nya sdh ada tinggal handler saja
+sblmnya kode untuk return ke user dg data tertentu hrs dilakukan berulang(tdk reuse), kita atasi mslh tsb dg melakukan refaktor/ dlm kasus
+ini disbt response converter. kode yg akan di refaktor tsb adlh
+for _, datum := range dataset {
+		dataResponse := transition.DataResponse{
+			ID:       datum.ID,
+			Judul:    datum.Judul,
+			Rating:   datum.Rating,
+			SubTitle: datum.SubTitle,
+		}
+		datasetResponse = append(datasetResponse, dataResponse)
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"data": datasetResponse,
+	})
+
+dan kode dibwh ini juga sama
+dataId, err := h.dataService.FindByID(int(id))
+dataRespone := transition.DataResponse{
+		ID:       dataId.ID,
+		Judul:    dataId.Judul,
+		Rating:   dataId.Rating,
+		SubTitle: dataId.SubTitle,
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"data": dataRespone,
+	})
+
+terlihatkan tdk reuse saat mapping data.
+caranya dg membuat private func (lihat dipaling bwh)
 */
 import (
 	"fmt"
@@ -36,12 +62,8 @@ func (h *dataHandler) GetDataset(c *gin.Context) {
 
 	var datasetResponse []transition.DataResponse
 	for _, datum := range dataset {
-		dataResponse := transition.DataResponse{
-			ID:       datum.ID,
-			Judul:    datum.Judul,
-			Rating:   datum.Rating,
-			SubTitle: datum.SubTitle,
-		}
+		// mapping data jd sesuai yg diinginkan tinggal panggil convertToDataResponse dg param datanya
+		dataResponse := convertToDataResponse(datum)
 		datasetResponse = append(datasetResponse, dataResponse)
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -49,11 +71,8 @@ func (h *dataHandler) GetDataset(c *gin.Context) {
 	})
 }
 
-// get data id tertentu
 func (h *dataHandler) GetDataByIdHandler(c *gin.Context) {
-	// tangkap data id nya, id berapa ?
 	idStr := c.Param("id")
-	// convert id dr string ke int
 	id, _ := strconv.Atoi(idStr)
 	dataId, err := h.dataService.FindByID(int(id))
 	if err != nil {
@@ -62,23 +81,15 @@ func (h *dataHandler) GetDataByIdHandler(c *gin.Context) {
 		})
 		return
 	}
-	// return ke user semua data termasuk CreateAt dan UpdateAt
-	// c.JSON(http.StatusOK, gin.H{
-	// 	"data": dataId,
-	// })
-	// kode diatas kita ubah sehingga hanya mengembalikan data tanpa CreateAt dan UpdateAt, sama sprti sblmnya
-	dataRespone := transition.DataResponse{
-		ID:       dataId.ID,
-		Judul:    dataId.Judul,
-		Rating:   dataId.Rating,
-		SubTitle: dataId.SubTitle,
-	}
+	// mapping data jd sesuai yg diinginkan tinggal panggil convertToDataResponse dg param datanya
+	dataRespone := convertToDataResponse(dataId)
 	c.JSON(http.StatusOK, gin.H{
 		"data": dataRespone,
 	})
 }
 
-func (h *dataHandler) PostHandler(c *gin.Context) {
+// nama func PostHandler diubah jd CreateNewDataHandler
+func (h *dataHandler) CreateNewDataHandler(c *gin.Context) {
 
 	var dataRequest transition.ItemRequest
 
@@ -106,4 +117,13 @@ func (h *dataHandler) PostHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": datum,
 	})
+}
+
+func convertToDataResponse(dataObj transition.Penyimpanan) transition.DataResponse {
+	return transition.DataResponse{
+		ID:       dataObj.ID,
+		Judul:    dataObj.Judul,
+		Rating:   dataObj.Rating,
+		SubTitle: dataObj.SubTitle,
+	}
 }
