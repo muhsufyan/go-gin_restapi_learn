@@ -1,8 +1,5 @@
 package main
 
-// now kita input json lwt postman http post v1/item yg akan disimpan kedlm db
-// mengakses service dr dlm handler(how handler access service), caranya sama saja dg mengakses repository dr dlm service/how service can access repository
-// dlm handler buat func baru New....
 import (
 	"log"
 	"rest-api_gin/handler"
@@ -23,15 +20,23 @@ func main() {
 
 	db.AutoMigrate(&transition.Penyimpanan{})
 
-	dataRepository := transition.NewRepository(db)
-	dataService := transition.NewService(dataRepository)
+	//we can apply if else jd if x maka simpan ke db, if else y maka simpan ke file text
 
-	// buat dataHandler, passing (lwt param) fungsi dataServicenya
+	// simpan ke db
+	// dataRepository := transition.NewRepository(db)
+	// dataService := transition.NewService(dataRepository)//simpan ke db(dilakukan melalui param dataRepository yg mrpkn interface dr Repository)
+	// dataHandler := handler.NewDataHandler(dataService)
+
+	// pura"nya simpan ke file text
+	// dataRepository := transition.NewRepository(db)
+	// instansiasi untuk fileRepository
+	dataFileRepository := transition.NewFileRepository()
+	dataService := transition.NewService(dataFileRepository) // lewat paramnya kita simpan data kedlm file text melalui interface fileRepository
 	dataHandler := handler.NewDataHandler(dataService)
+
 	router := gin.Default()
 
 	v1 := router.Group("/v1")
-	// cara akses nya diubah jd lwt Service dulu tdk langsung ke handler
 	v1.GET("/", dataHandler.RootHandler)
 	v1.GET("/pageke2", dataHandler.Page2Handler)
 	v1.GET("/item/:id/:tahun", dataHandler.UrlparamHandler)
