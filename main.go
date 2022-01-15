@@ -30,8 +30,8 @@ func main() {
 	v1.GET("/", dataHandler.GetDataset)
 	v1.GET("/getById/:id", dataHandler.GetDataByIdHandler)
 	v1.POST("/item", dataHandler.CreateNewDataHandler)
-	// UPDATE
 	v1.PUT("/update/:id", dataHandler.UpdateDataHandler)
+	v1.DELETE("/delete/:id", dataHandler.DeleteDataHandler)
 
 	router.Run(":8888")
 }

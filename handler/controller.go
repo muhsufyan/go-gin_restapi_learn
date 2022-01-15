@@ -1,11 +1,11 @@
 package handler
 
 /*
-kita akan update data dg id tertentu melalui http PUT.
-data akan ditangkap oleh ItemRequest (request.go), disini kita gunakan ItemRequest karena data yg bisa di update itu sama dg create,
-nah jika data diupdate beda maka buat saja DataRequestUpdate. tp dikasus ini kita tidak mengedit id sehingga sama sprti ItemRequest sblmnya yg dibuat untuk create
-Kita harus buat func update yg di define dlm interface Repository (repository.go tambh func u/ update) lalu buat juga func update yg di define dlm interface Service (service.go tmbh func u/ update)
-lalu buat controller untuk Update (kodenya dibawah dg func UpdateDataHandler), lalu buat path urlnya  di main.go
+delete ini hampir sama dg update (alur)
+1. buat deklarasi func delete di interface Repository (agar data dpt terhapus di db) dan buat implement-nya. pergi ke repostiory.go
+2. buat juga di service. di service perlu menerima data id untuk data yg ingin dihapus. pergi ke service.go
+3. buat DeleteDataHandler untuk dipanggil di main.go nantinya
+4. buat http delete di main.go yg memanggil DeleteDataHandler
 */
 import (
 	"fmt"
@@ -94,7 +94,6 @@ func (h *dataHandler) CreateNewDataHandler(c *gin.Context) {
 	})
 }
 
-// Update
 func (h *dataHandler) UpdateDataHandler(c *gin.Context) {
 
 	var dataRequest transition.ItemRequest
@@ -111,10 +110,9 @@ func (h *dataHandler) UpdateDataHandler(c *gin.Context) {
 		})
 		return
 	}
-	// get id yg ingin diupdate
+
 	idStr := c.Param("id")
 	id, _ := strconv.Atoi(idStr)
-	// Param 1 = id,
 	datum, err := h.dataService.Update(id, dataRequest)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -125,6 +123,26 @@ func (h *dataHandler) UpdateDataHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": convertToDataResponse(datum),
+	})
+}
+
+// DELETE HANDLER/CONTROLLER
+func (h *dataHandler) DeleteDataHandler(c *gin.Context) {
+	// tangkap id yg ingin dihapus dari user
+	idStr := c.Param("id")
+	id, _ := strconv.Atoi(idStr)
+	// jlnkan Service delete
+	dataId, err := h.dataService.Delete(int(id))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"errors": err,
+		})
+		return
+	}
+
+	dataRespone := convertToDataResponse(dataId)
+	c.JSON(http.StatusOK, gin.H{
+		"data": dataRespone,
 	})
 }
 
